@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from ytmusicapi import YTMusic
 from pytube import YouTube
 import tempfile
 import requests
 import os
+from pydub import AudioSegment
+import io
 
 app = Flask(__name__)
 yt = YTMusic()
@@ -107,6 +109,20 @@ def process():
                     "done": False,
                 }
             )
+
+
+@app.route("/merge", methods=["POST"])
+def merge():
+    first_audio = request.files["first"]
+    second_audio = request.files["second"]
+    sound1 = AudioSegment.from_file(first_audio)
+    sound2 = AudioSegment.from_file(second_audio)
+    sound1 = sound1 - 6
+    byte_arr = io.BytesIO()
+    combined = sound1.overlay(sound2)
+    combined.export(byte_arr, format="mp3")
+    byte_arr.seek(0)
+    return send_file(byte_arr, mimetype="audio/mpeg")
 
 
 if __name__ == "__main__":
