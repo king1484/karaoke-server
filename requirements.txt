@@ -3,3 +3,4 @@ gunicorn
 requests
 ytmusicapi
 git+https://github.com/pytube/pytube
+pydub
